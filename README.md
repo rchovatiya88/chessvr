@@ -37,4 +37,7 @@ Open Source WebXR game using aframe.io (webVR framework) Full Code available on 
 ```
 
 
-
+# TODO 
+[] Adding motion
+[] Interactions
+[] Individual 
