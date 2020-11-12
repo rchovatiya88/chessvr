@@ -28,12 +28,13 @@ Open Source WebXR game using aframe.io (webVR framework) Full Code available on 
     // Importing evnvironment component that will help create various pre made scenes.
   </head>
   <body>
-    <a-scene environment="preset: checkerboard; groundColor: #FFF">
-     
-      <a-sky color="#87ceeb"></a-sky>
+    <a-scene environment="preset: checkerboard; groundColor: #FFF">  // this is to change the scene   
+   <a-sky color="#87ceeb"></a-sky>
       
     </a-scene>
   </body>
 </html>
 ```
+
+
 
