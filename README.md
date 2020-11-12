@@ -37,4 +37,3 @@ Open Source WebXR game using aframe.io (webVR framework) Full Code available on 
 </html>
 ```
 
-### Follow IG 👉@OrnaLabs
