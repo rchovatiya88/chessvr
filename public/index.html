@@ -2,13 +2,26 @@
   <head>
     <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
     <script src="https://unpkg.com/aframe-environment-component@1.1.0/dist/aframe-environment-component.min.js"></script>
-    <script src="https://unpkg.com/aframe-event-set-component@^4.0.0/dist/aframe-event-set-component.min.js"></script>  
+    <script src="https://unpkg.com/aframe-event-set-component@^4.0.0/dist/aframe-event-set-component.min.js"></script>
   </head>
-  
-  
+
   <body>
     <a-scene environment="preset: checkerboard; groundColor:white">
-    <a-box position="0 1 -5" rotation="45 45 45" color="#4CC309"></a-box>
+      <a-box position="0 1 -5" rotation="45 45 45" color="#4CC309"></a-box>
+      <a-asset-item
+        id="chessboard"
+        src="https://cdn.glitch.com/97890fbd-889b-466f-a357-23627a83de50%2Fout%20(1).glb?v=1604949268125"
+      ></a-asset-item>
+
+      <a-sky color="#6EBAA7"></a-sky>
+      <a-entity position="0 4 3">
+        <a-camera> </a-camera>
+      </a-entity>
+      <a-entity
+        position="-1.5  0 -15.000"
+        scale="8 8 8"
+        gltf-model="#chessboard"
+      ></a-entity>
     </a-scene>
   </body>
 </html>
