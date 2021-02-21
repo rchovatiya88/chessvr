@@ -1,167 +1,396 @@
 <html>
   <head>
-    <!-- AFrame and Component Libs-->
-    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <title>Chess VR - Let's play chess in WEBXR</title>
+    <script src="https://aframe.io/releases/1.1.0/aframe.min.js"></script>
     <script src="https://unpkg.com/aframe-environment-component@1.1.0/dist/aframe-environment-component.min.js"></script>
-    <script src="https://unpkg.com/aframe-event-set-component@^4.0.0/dist/aframe-event-set-component.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.slim.js"></script>
-    <script src="http://supereggbert.github.io/aframe-aobake-component/dist/build.js"></script>
-    <script src="https://unpkg.com/networked-aframe@^0.6.0/dist/networked-aframe.min.js"></script>
-    <script src="https://unpkg.com/aframe-randomizer-components@^3.0.1/dist/aframe-randomizer-components.min.js"></script>
-    <script src="https://unpkg.com/aframe-particle-system-component@1.0.5/dist/aframe-particle-system-component.min.js"></script>
-    <script src="https://rawgit.com/mayognaise/aframe-mouse-cursor-component/master/dist/aframe-mouse-cursor-component.min.js"></script>
-    <script src="https://unpkg.com/aframe-text-geometry-component@0.5.1/dist/aframe-text-geometry-component.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.0.5/howler.min.js"></script>
-    <script src="https://rawgit.com/donmccurdy/aframe-extras/master/dist/aframe-extras.loaders.min.js"></script>
-    <script src="https://cdn.rawgit.com/mrturck/aframe-joystick/master/joystick.min.js"></script>
+    <script src="https://rawgit.com/fernandojsg/aframe-teleport-controls/master/dist/aframe-teleport-controls.min.js"></script>
 
-    <!--Project JS Files-->
-    <script src="node js/server.js"></script>
-    <script src="js/spawn-in-circle.component.js"></script>
-    <script src="js/aframe-physics-system.js"></script>
-    <script src="js/handtracking.js"></script>
-    <script src="js/handtracking-gesture.js"></script>
+    <script src="https://unpkg.com/super-hands/dist/super-hands.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/n5ro/aframe-physics-system@v4.0.1/dist/aframe-physics-system.js"></script>
+    <script src="https://unpkg.com/aframe-event-set-component@^4.1.1/dist/aframe-event-set-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-physics-extras/dist/aframe-physics-extras.min.js"></script>
   </head>
 
   <body>
-    <!--     <a-light type="ambient" color="#222"></a-light> -->
-    <a-scene
-      webxr="optionalFeatures: hand-tracking"
-      physics="debug: false"
-      environment="preset: forest;"
-      networked-scene="room: basic; debug: true;"
-      joystick vr-mode-ui="enabled: false"
-    >
-      <a-assets>
-        <!--     All the Assets inside <a-assets> TAG</a-assets> -->
-        <!--      Like a BOX <a-box position="0 1 -5" rotation="45 45 45" color="#4CC309"></a-box> -->
-        <!--         Insert CDN URLlocation of the 3D obects (Must be glb or gltf format) -->
-        <a-asset-item
-          id="chessboard"
-          src="https://cdn.glitch.com/97890fbd-889b-466f-a357-23627a83de50%2Fout%20(1).glb?v=1604949268125"
-        ></a-asset-item>
-        <!-- Avatar -->
-        <template id="avatar-template">
-          <a-entity class="avatar">
-            <a-sphere
-              class="head"
-              color="#5985ff"
-              scale="0.45 0.5 0.4"
-              position="0 -1 0"
-              random-color
-            ></a-sphere>
-            <a-entity class="face" position="0 -1.05 0">
-              <a-sphere
-                class="eye"
-                color="#efefef"
-                position="0.16 0.1 -0.35"
-                scale="0.12 0.12 0.12"
-              >
-                <a-sphere
-                  class="pupil"
-                  color="#000"
-                  position="0 0 -1"
-                  scale="0.2 0.2 0.2"
-                ></a-sphere>
-              </a-sphere>
-              <a-sphere
-                class="eye"
-                color="#efefef"
-                position="-0.16 0.1 -0.35"
-                scale="0.12 0.12 0.12"
-              >
-                <a-sphere
-                  class="pupil"
-                  color="#000"
-                  position="0 0 -1"
-                  scale="0.2 0.2 0.2"
-                ></a-sphere>
-              </a-sphere>
-            </a-entity>
-          </a-entity>
-        </template>
-      </a-assets>
-
-      <!--       All the  entitiees  -->
-      <a-camera position="0 0 0"></a-camera>
-      
-      <a-entity>
-  tracked-controls
-  vive-controls  <!-- Vive button mappings. -->
-  oculus-touch-controls  <!-- Oculus button mappings. -->
-  hand-controls  <!-- Appearance (model), gestures, and events. -->
-  laser-controls <!-- Laser to interact with menus and UI. -->
-  sphere-collider  <!-- Listen when hand is in contact with an object. -->
-  grab  <!-- Provide ability to grab objects. -->
-  throw <!-- Provide ability to throw objects. -->
-  event-set="_event: grabstart; visible: false"  <!-- Hide hand when grabbing object. -->
-  event-set="_event: grabend; visible: true"  <!-- Show hand when no longer grabbing object. -->
-</a-entity>
-      <a-entity
-        id="player"
-        networked="template:#avatar-template;attachTemplateToLocal:false;"
-        camera
-        position="0 -3 0"
-        spawn-in-circle="radius:4"
-        wasd-controls
-        look-controls
-        hand-tracking
-      >
-        <a-sphere class="head" visible="false" random-color></a-sphere>
-      </a-entity>
-
-      <a-sphere
-        src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/space/earth_atmos_4096.jpg"
-        radius="2"
-        segments-height="84"
-        position="-1.340 11.902 -29.099"
-        scale="5 5 5"
-        rotation="-171.851 -18.431 178.663"
-      >
-      </a-sphere>
-
-      <!--       This is the  camera position -->
-        <a-entity camera id="camera" position="0 1 0" look-controls wasd-controls>
-    </a-entity>
-      <a-entity
-        position="-1.5  0 -5.000"
-        scale="8 8 8"
-        gltf-model="#chessboard"
-      ></a-entity>
-
-      <a-box dynamic-body position="3 2 -.5" color="blue"></a-box>
-      <a-plane
-        static-body
-        position="0 -0.9 0"
-        rotation="-90 0 0"
-        width="200"
-        height="200"
-        opacity="0.1"
-      ></a-plane>
-    </a-scene>
-
     <script>
-      // On mobile remove elements that are resource heavy
-      var isMobile = AFRAME.utils.device.isMobile();
-
-      //       if (isMobile) {
-      //         var particles = document.getElementById('particles');
-      //         particles.parentNode.removeChild(particles);
-      //       }
-
-      // Define custom schema for syncing avatar color, set by random-color
-      NAF.schemas.add({
-        template: "#avatar-template",
-        components: [
-          "position",
-          "rotation",
-          {
-            selector: ".head",
-            component: "material",
-            property: "color"
-          }
-        ]
+      AFRAME.registerComponent("phase-shift", {
+        init: function() {
+          var el = this.el;
+          el.addEventListener("gripdown", function() {
+            el.setAttribute("collision-filter", { collisionForces: true });
+          });
+          el.addEventListener("gripup", function() {
+            el.setAttribute("collision-filter", { collisionForces: false });
+          });
+        }
       });
     </script>
+    <!--       Getting script for teleportation -->
+    <script>
+      AFRAME.registerComponent("input-listen", {
+        init: function() {
+          //Declaration and initialization of flag
+          //which exprains grip button is pressed or not.
+          //"this.el" reffers ctlR or L in this function
+          this.el.grip = false;
+
+          //Grip Pressed
+          this.el.addEventListener("gripdown", function(e) {
+            //Setting grip flag as true.
+            this.grip = true;
+          });
+          //Grip Released
+          this.el.addEventListener("gripup", function(e) {
+            //Setting grip flag as false.
+            this.grip = false;
+          });
+
+          //Raycaster intersected with something.
+          this.el.addEventListener("raycaster-intersection", function(e) {
+            //Store first selected object as selectedObj
+            this.selectedObj = e.detail.els[0];
+          });
+          //Raycaster intersection is finished.
+          this.el.addEventListener("raycaster-intersection-cleared", function(
+            e
+          ) {
+            //Clear information of selectedObj
+            this.selectedObj = null;
+          });
+
+          //A-buttorn Pressed
+          this.el.addEventListener("abuttondown", function(e) {
+            //Start pointing position to teleport
+            this.emit("teleportstart");
+          });
+          this.el.addEventListener("abuttonup", function(e) {
+            //Jump to pointed position
+            this.emit("teleportend");
+          });
+
+          //X-buttorn Pressed
+          this.el.addEventListener("xbuttondown", function(e) {
+            //Start pointing position to teleport
+            this.emit("teleportstart");
+          });
+
+          //X-buttorn Released
+          this.el.addEventListener("xbuttonup", function(e) {
+            //Jump to pointed position
+            this.emit("teleportend");
+          });
+
+          //console.log(this);
+        },
+
+        //called evry frame.
+        tick: function() {
+          if (!this.el.selectedObj) {
+            return;
+          }
+          if (!this.el.grip) {
+            return;
+          }
+
+          //Getting raycaster component which is attatched to ctlR or L
+          //this.el means entity of ctlR or L in this function.
+          var ray = this.el.getAttribute("raycaster").direction;
+          //setting tip of raycaster as 1.1m forward of controller.
+          var p = new THREE.Vector3(ray.x, ray.y, ray.z);
+          p.normalize();
+          p.multiplyScalar(1.2);
+          //Convert local position into world coordinate.
+          this.el.object3D.localToWorld(p);
+          //Move selected object to follow the tip of raycaster.
+          this.el.selectedObj.object3D.position.set(p.x, p.y, p.z);
+        }
+      });
+    </script>
+
+    <a-scene physics="debug: false; gravity: 0; restitution: 0.9; ">
+      <a-assets>
+        <a-mixin
+          id="all-interactions"
+          hoverable
+          grabbable
+          stretchable
+          draggable
+          event-set__hoveron="_event: hover-start; material.opacity: 0.7; transparent: true"
+          event-set__hoveroff="_event: hover-end; material.opacity: 1; transparent: false"
+          dynamic-body
+        ></a-mixin>
+
+        <a-mixin
+          id="grab-move"
+          hoverable
+          grabbable
+          draggable
+          event-set__hoveron="_event: hover-start; material.opacity: 0.7; transparent: true"
+          event-set__hoveroff="_event: hover-end; material.opacity: 1; transparent: false"
+          dynamic-body="shape: box; sphereRadius: 0.1"
+        ></a-mixin>
+
+        <a-mixin
+          id="physics-hands"
+          physics-collider
+          phase-shift
+          collision-filter="collisionForces: false"
+          static-body="shape: sphere; sphereRadius: 0.02"
+          super-hands="colliderEvent: collisions;
+                              colliderEventProperty: els;
+                              colliderEndEvent: collisions;
+                              colliderEndEventProperty: clearedEls;"
+        ></a-mixin>
+
+        <img
+          crossorigin="anonymous"
+          id="ground"
+          src="https://cdn.glitch.com/97890fbd-889b-466f-a357-23627a83de50%2FTexturesCom_FloorStreets0064_2_M.jpg?v=1612300231287"
+        />
+
+        <a-asset-item
+          id="bench"
+          src="https://cdn.glitch.com/97890fbd-889b-466f-a357-23627a83de50%2Fparkbench.glb?v=1605981926560"
+        ></a-asset-item>
+        <a-asset-item
+          id="chessboard"
+          src="https://cdn.glitch.com/97890fbd-889b-466f-a357-23627a83de50%2Fchessboard.glb?v=1606670345349"
+        ></a-asset-item>
+        <a-asset-item
+          id="knight"
+          src="https://cdn.glitch.com/97890fbd-889b-466f-a357-23627a83de50%2Fknight.glb?v=1606659327275"
+        ></a-asset-item>
+        <a-asset-item
+          id="queen"
+          src="https://cdn.glitch.com/97890fbd-889b-466f-a357-23627a83de50%2Fqueen.glb?v=1606659741441"
+        ></a-asset-item>
+        <a-asset-item
+          id="rook"
+          src="https://cdn.glitch.com/97890fbd-889b-466f-a357-23627a83de50%2Frook.glb?v=1606659741489"
+        ></a-asset-item>
+        <a-asset-item
+          id="pawn"
+          src="https://cdn.glitch.com/97890fbd-889b-466f-a357-23627a83de50%2Fpawn.glb?v=1606659741561"
+        ></a-asset-item>
+        <a-asset-item
+          id="king"
+          src="https://cdn.glitch.com/97890fbd-889b-466f-a357-23627a83de50%2Fking.glb?v=1606659741630"
+        ></a-asset-item>
+        <a-asset-item
+          id="bishop"
+          src="https://cdn.glitch.com/97890fbd-889b-466f-a357-23627a83de50%2Fbishop.glb?v=1606659741722"
+        ></a-asset-item>
+      </a-assets>
+
+      <!-- Ground -->
+      <a-plane
+        static-body
+        material="color: #FFFFFFF; src: #ground; repeat :15 15;"
+        rotation="-90 0 0"
+        position="0 0.1 0"
+        scale="20 20 0"
+      >
+      </a-plane>
+
+      <!-- Environment -->
+      <a-entity
+        environment="preset:  forest;  playArea:  2;  active:  true;  seed:  8; 
+                     skyType:  gradient;  
+                     skyColor:  #ffffff;  
+                     horizonColor:  #87CEEB;  
+                     fog:  0.5;  
+                     groundYScale:  4.18;  groundTexture:  squares;  groundColor:  #43994b;  
+                     groundColor2:  #43994b;  dressing:  trees;  dressingAmount:  500;  
+                     dressingColor:  #43994b;  dressingScale:  1;   
+                     gridColor:  #43994b"
+      ></a-entity>
+
+      <!-- 3D models -->
+      <a-gltf-model src="#bench" scale="1 1 1" position="0 0.5 -3">
+      </a-gltf-model>
+      <a-gltf-model
+        src="#chessboard"
+        scale="0.001 0.001 0.001"
+        position="0 0.92234 -3"
+        rotation="0 -23.83160653067146 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        mixin="all-interactions"
+        class="collidable"
+        src="#knight"
+        scale="0.03 0.03 0.03"
+        position="-0.38701 1.08131 -2.44533"
+      >
+      </a-gltf-model>
+      <a-gltf-model
+        mixin="all-interactions"
+        src="#queen"
+        scale="0.03 0.03 0.03"
+        position="0.07661 1.08131 -2.44533"
+      >
+      </a-gltf-model>
+      <a-gltf-model
+        mixin="all-interactions"
+        src="#rook"
+        scale="0.03 0.03 0.03"
+        position="-0.543 1.08131 -2.44959"
+      >
+      </a-gltf-model>
+      <a-gltf-model
+        mixin="all-interactions"
+        src="#pawn"
+        scale="0.03 0.03 0.03"
+        position="-0.54298 1.08131 -2.59185"
+      >
+      </a-gltf-model>
+      <a-gltf-model
+        mixin="all-interactions"
+        src="#pawn"
+        scale="0.03 0.03 0.03"
+        position="-0.4 1.08131 -2.59185"
+      >
+      </a-gltf-model>
+      <a-gltf-model
+        mixin="all-interactions"
+        src="#pawn"
+        scale="0.03 0.03 0.03"
+        position="-0.23215 1.08131 -2.57271"
+      >
+      </a-gltf-model>
+      <a-gltf-model
+        mixin="all-interactions"
+        src="#pawn"
+        scale="0.03 0.03 0.03"
+        position="-0.07026 1.08131 -2.57271"
+      >
+      </a-gltf-model>
+      <a-gltf-model
+        mixin="all-interactions"
+        src="#pawn"
+        scale="0.03 0.03 0.03"
+        position="0.0677 1.08131 -2.57271"
+      >
+      </a-gltf-model>
+      <a-gltf-model
+        mixin="all-interactions"
+        src="#pawn"
+        scale="0.03 0.03 0.03"
+        position="0.226 1.08131 -2.57271"
+      >
+      </a-gltf-model>
+      <a-gltf-model
+        mixin="all-interactions"
+        src="#pawn"
+        scale="0.03 0.03 0.03"
+        position="0.373 1.08131 -2.57271"
+      >
+      </a-gltf-model>
+      <a-gltf-model
+        mixin="all-interactions"
+        src="#pawn"
+        scale="0.03 0.03 0.03"
+        position="0.530 1.08131 -2.57271"
+      >
+      </a-gltf-model>
+
+      <a-gltf-model
+        mixin="all-interactions"
+        src="#king"
+        scale="0.03 0.03 0.03"
+        position="-0.068 1.08131 -2.44533"
+      >
+      </a-gltf-model>
+      <a-gltf-model
+        mixin="all-interactions"
+        src="#bishop"
+        scale="0.03 0.03 0.03"
+        position="0.23515 1.08131 -2.44533"
+      >
+      </a-gltf-model>
+      <a-gltf-model
+        mixin="all-interactions"
+        src="#knight"
+        scale="0.03 0.03 0.03"
+        position="0.38701 1.08131 -2.44533"
+      >
+      </a-gltf-model>
+      <a-gltf-model
+        mixin="all-interactions"
+        src="#rook"
+        scale="0.03 0.03 0.03"
+        position="0.543 1.08131 -2.44959"
+      >
+      </a-gltf-model>
+      <a-gltf-model
+        mixin="all-interactions"
+        src="#bishop"
+        scale="0.03 0.03 0.03"
+        position="-0.23515 1.08131 -2.44533"
+      >
+      </a-gltf-model>
+
+      <!-- Camera in VR is 0 0 0 but in Desktop mode its 0 1.6 0 -->
+      <!--       <a-entity position="0 0 0">
+        <a-camera user-height="1.6" active="true"> </a-camera>
+      </a-entity> -->
+
+      <a-entity id="cameraRig">
+
+       
+        <a-entity
+          id="head"
+          camera
+          wasd-controls
+          look-controls
+          position="0 1.6 0"
+        >
+        </a-entity>
+        <a-entity
+          id="ctlL"
+          teleport-controls="cameraRig: #cameraRig; teleportOrigin: #head; startEvents: teleportstart; endEvents: teleportend"
+          raycaster="objects: .collidable; far:1.2; "
+          hand-controls="hand: left"
+          mixin="physics-hands"
+          input-listen
+          phase-shift
+        >
+          <a-text
+            value="Press and let go \nX: to Move"
+            position="0 0.08 0"
+            rotation="-90 0 0"
+            scale="0.1 0.1 0.1"
+            align="center"
+            color="#FFFFFF"
+          ></a-text>
+          <a-sphere
+            radius="0.01"
+            position="0 0 -1.2"
+            color="#FFFFFF"
+          ></a-sphere>
+        </a-entity>
+        <a-entity
+          id="ctlR"
+          raycaster="objects: .collidable; far:1.2; "
+          hand-controls="hand: right"
+          mixin="physics-hands"
+          input-listen
+          phase-shift
+        >
+          <a-text
+            value="Use Grip to interact"
+            position="0 0.08 0"
+            rotation="-90 0 0"
+            scale="0.1 0.1 0.1"
+            align="center"
+            color="#FFFFFF"
+          ></a-text>
+          <a-sphere
+            radius="0.01"
+            position="0 0 -1.2"
+            color="#FFFFFF"
+          ></a-sphere>
+        </a-entity>
+      </a-entity>
+    </a-scene>
   </body>
 </html>
