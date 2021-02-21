@@ -1,13 +1,13 @@
 ### Setting up Multiplayer WebXR Chess Game
 
-Open Source WebXR game using aframe.io (webVR framework) Full Code available on our Github Page.
+Open Source WebXR game using aframe.io (webVR framework) Full Code available on Github Page.
+
+Live [Demo](https://chessvr.glitch.me/) - https://chessvr.glitch.me/
 
 #### Pre-Requisties
 
+- Web Browser (Chrome)
 - Set up Glitch Account - www.glitch.com
-- If you want to Improve this experience
-
-  - Create a pull request on this Github
 
 ### How it Works
 
@@ -20,7 +20,7 @@ Let's define our goal for the project and scene. In order visualize our concept,
 
 - Environment
 - 3D Models of Chess
-- Ground
+- Controllers
 
 ### Creating a Scene
 
@@ -46,6 +46,8 @@ For example we can follow the docs from a-frame [Getting Started](https://aframe
   color="#7BC8A4"
 ></a-plane>
 ```
+
+Watch [Tutorial](https://www.youtube.com/watch?v=ktjMCanKNLk&list=PL8MkBHej75fJD-HveDzm4xKrciC5VfYuV)
 
 - For our project we need a real ground, We decided use a [Ground texture](https://www.textures.com/browse/streets/97701)
   ![Ground textured](https://cdn.glitch.com/97890fbd-889b-466f-a357-23627a83de50%2FTexturesCom_FloorStreets0064_2_M.jpg?v=1612300231287)
@@ -137,25 +139,26 @@ Similar to the code from [aframe docs](https://aframe.io/docs/1.1.0/primitives/a
 
 ![Step 3](https://cdn.glitch.com/97890fbd-889b-466f-a357-23627a83de50%2FScreen%20Shot%202021-02-02%20at%205.44.21%20PM.png?v=1612305923293)
 
-### Step 4 
+### Step 4
 
 - Adding Quest Controllers to move and Teleport in our scene
 
 We import `aframe-teleport-controls` by Fernando Serrano [Github link](https://github.com/fernandojsg/aframe-teleport-controls)
 
-Inside the `<head>` tag we simply copy and past this cdn script 
+Inside the `<head>` tag we simply copy and past this cdn script
+
 ```
     <script src="https://rawgit.com/fernandojsg/aframe-teleport-controls/master/dist/aframe-teleport-controls.min.js"></script>
 ```
 
-**WARNING** 
-```The implementation for quest controllers doesn't quite work from the github page.``` 
-
+**WARNING**
+`The implementation for quest controllers doesn't quite work from the github page.`
 
 Luckily [Takashi Yoshinaga](https://github.com/TakashiYoshinaga) create a great implementation and showed how to implement in his demo - `https://quest-demo.glitch.me`
 ![Demo](https://im2.ezgif.com/tmp/ezgif-2-f1d0dd3fd324.gif)
 
 Using Takashi implementation, since we already imported the `aframe-teleport` we add cameraRig entity
+
 ```
  <a-entity id="cameraRig">
             <a-entity id="head" camera wasd-controls look-controls position="0 1.6 0">
@@ -175,13 +178,14 @@ Using Takashi implementation, since we already imported the `aframe-teleport` we
         </a-entity>
 ```
 
-And we need to add EventListener script 
+And we need to add EventListener script
+
 ```
 <script>
     AFRAME.registerComponent('input-listen', {
         init:
             function () {
-                //Declaration and initialization of flag 
+                //Declaration and initialization of flag
                 //which exprains grip button is pressed or not.
                 //"this.el" reffers ctlR or L in this function
                 this.el.grip = false;
@@ -201,7 +205,7 @@ And we need to add EventListener script
 
                 //Raycaster intersected with something.
                 this.el.addEventListener('raycaster-intersection', function (e) {
-                    //Store first selected object as selectedObj 
+                    //Store first selected object as selectedObj
                     this.selectedObj = e.detail.els[0];
                 });
                 //Raycaster intersection is finished.
@@ -210,9 +214,9 @@ And we need to add EventListener script
                     this.selectedObj = null;
                 });
 
-                //A-buttorn Pressed 
+                //A-buttorn Pressed
                 this.el.addEventListener('abuttondown', function (e) {
-                       //Start pointing position to teleport  
+                       //Start pointing position to teleport
                     this.emit('teleportstart');
                 });
                this.el.addEventListener('abuttonup', function (e) {
@@ -220,13 +224,13 @@ And we need to add EventListener script
                     this.emit('teleportend');
                 });
 
-                //X-buttorn Pressed 
+                //X-buttorn Pressed
                 this.el.addEventListener('xbuttondown', function (e) {
-                    //Start pointing position to teleport  
+                    //Start pointing position to teleport
                     this.emit('teleportstart');
                 });
 
-                //X-buttorn Released 
+                //X-buttorn Released
                 this.el.addEventListener('xbuttonup', function (e) {
                     //Jump to pointed position
                     this.emit('teleportend');
@@ -240,11 +244,11 @@ And we need to add EventListener script
 
             if (!this.el.selectedObj) { return; }
             if (!this.el.grip) { return; }
-          
+
             //Getting raycaster component which is attatched to ctlR or L
             //this.el means entity of ctlR or L in this function.
             var ray = this.el.getAttribute("raycaster").direction;
-            //setting tip of raycaster as 1.1m forward of controller.  
+            //setting tip of raycaster as 1.1m forward of controller.
             var p = new THREE.Vector3(ray.x, ray.y, ray.z);
             p.normalize();
             p.multiplyScalar(1.2);
@@ -261,10 +265,110 @@ And we need to add EventListener script
 
 ![Step 4](https://cdn.glitch.com/97890fbd-889b-466f-a357-23627a83de50%2Fdemogif.gif?v=1613756972311)
 
+### Adding Hands and phsyics
 
+Since we need to add hands and being able to pick up chess pieces we need `aframe-physics` and `hands` - @[Will Murphy](https://github.com/wmurphyrd) to the rescue with `aframe-super-hands-component`
 
+Also - Kyle Baker helped us simplify the implementation - > https://github.com/wmurphyrd/aframe-super-hands-component/issues/188
 
+Per Kyle instruction 
+ - Import the components in head 
+    ```
+     <script src="https://unpkg.com/super-hands/dist/super-hands.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/n5ro/aframe-physics-system@v4.0.1/dist/aframe-physics-system.js"></script>
+    <script src="https://unpkg.com/aframe-event-set-component@^4.1.1/dist/aframe-event-set-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-physics-extras/dist/aframe-physics-extras.min.js"></script>
+    ```
+    
+- Then add Script 
+```
+<script>
+      AFRAME.registerComponent("phase-shift", {
+        init: function() {
+          var el = this.el;
+          el.addEventListener("gripdown", function() {
+            el.setAttribute("collision-filter", { collisionForces: true });
+          });
+          el.addEventListener("gripup", function() {
+            el.setAttribute("collision-filter", { collisionForces: false });
+          });
+        }
+      });
+    </script>
+  ```
+  
+  - Add Mixin inside your `<assets>` tag 
+  
+  ```
+    <a-mixin
+          id="all-interactions"
+          hoverable
+          grabbable
+          stretchable
+          draggable
+          event-set__hoveron="_event: hover-start; material.opacity: 0.7; transparent: true"
+          event-set__hoveroff="_event: hover-end; material.opacity: 1; transparent: false"
+          dynamic-body
+        ></a-mixin>
+
+        <a-mixin
+          id="grab-move"
+          hoverable
+          grabbable
+          draggable
+          event-set__hoveron="_event: hover-start; material.opacity: 0.7; transparent: true"
+          event-set__hoveroff="_event: hover-end; material.opacity: 1; transparent: false"
+          dynamic-body="shape: box; sphereRadius: 0.1"
+        ></a-mixin>
+
+        <a-mixin
+          id="physics-hands"
+          physics-collider
+          phase-shift
+          collision-filter="collisionForces: false"
+          static-body="shape: sphere; sphereRadius: 0.02"
+          super-hands="colliderEvent: collisions;
+                              colliderEventProperty: els;
+                              colliderEndEvent: collisions;
+                              colliderEndEventProperty: clearedEls;"
+        ></a-mixin>
+  
+  ```
+  
+  - Now we need to tell our models to get mixins
+  ```
+  <a-gltf-model
+        mixin="all-interactions"
+        class="collidable"
+        src="#knight"
+        scale="0.03 0.03 0.03"
+        position="-0.38701 1.08131 -2.44533"
+      >
+      </a-gltf-model>
+      <a-gltf-model
+        mixin="all-interactions"
+        src="#queen"
+        scale="0.03 0.03 0.03"
+        position="0.07661 1.08131 -2.44533"
+      >
+  ```
+  
+  - Lastly we need to mixin, hands and script to the CameraRig
+  
+  ```
+  <a-entity
+          id="ctlL"
+          teleport-controls="cameraRig: #cameraRig; teleportOrigin: #head; startEvents: teleportstart; endEvents: teleportend"
+          raycaster="objects: .collidable; far:1.2; "
+          hand-controls="hand: left" 
+          mixin="physics-hands" <-updated
+          input-listen
+          phase-shift <- updated
+        >
+  ```
+  
+  
 # TODO
 
 - Adding `aframe-physics` to interact with chess pieces
-- Multiplayer 
+- Multiplayer

@@ -5,92 +5,143 @@
     <script src="https://unpkg.com/aframe-environment-component@1.1.0/dist/aframe-environment-component.min.js"></script>
     <script src="https://rawgit.com/fernandojsg/aframe-teleport-controls/master/dist/aframe-teleport-controls.min.js"></script>
 
+    <script src="https://unpkg.com/super-hands/dist/super-hands.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/n5ro/aframe-physics-system@v4.0.1/dist/aframe-physics-system.js"></script>
+    <script src="https://unpkg.com/aframe-event-set-component@^4.1.1/dist/aframe-event-set-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-physics-extras/dist/aframe-physics-extras.min.js"></script>
   </head>
 
   <body>
-    <a-scene physics="debug: false; gravity: 0; restitution: 0.9; ">
-<!--       Getting script for teleportation -->
-      <script>
-    AFRAME.registerComponent('input-listen', {
-        init:
-            function () {
-                //Declaration and initialization of flag 
-                //which exprains grip button is pressed or not.
-                //"this.el" reffers ctlR or L in this function
-                this.el.grip = false;
+    <script>
+      AFRAME.registerComponent("phase-shift", {
+        init: function() {
+          var el = this.el;
+          el.addEventListener("gripdown", function() {
+            el.setAttribute("collision-filter", { collisionForces: true });
+          });
+          el.addEventListener("gripup", function() {
+            el.setAttribute("collision-filter", { collisionForces: false });
+          });
+        }
+      });
+    </script>
+    <!--       Getting script for teleportation -->
+    <script>
+      AFRAME.registerComponent("input-listen", {
+        init: function() {
+          //Declaration and initialization of flag
+          //which exprains grip button is pressed or not.
+          //"this.el" reffers ctlR or L in this function
+          this.el.grip = false;
 
+          //Grip Pressed
+          this.el.addEventListener("gripdown", function(e) {
+            //Setting grip flag as true.
+            this.grip = true;
+          });
+          //Grip Released
+          this.el.addEventListener("gripup", function(e) {
+            //Setting grip flag as false.
+            this.grip = false;
+          });
 
+          //Raycaster intersected with something.
+          this.el.addEventListener("raycaster-intersection", function(e) {
+            //Store first selected object as selectedObj
+            this.selectedObj = e.detail.els[0];
+          });
+          //Raycaster intersection is finished.
+          this.el.addEventListener("raycaster-intersection-cleared", function(
+            e
+          ) {
+            //Clear information of selectedObj
+            this.selectedObj = null;
+          });
 
-                //Grip Pressed
-                this.el.addEventListener('gripdown', function (e) {
-                    //Setting grip flag as true.
-                    this.grip = true;
-                });
-                //Grip Released
-                this.el.addEventListener('gripup', function (e) {
-                    //Setting grip flag as false.
-                    this.grip = false;
-                });
+          //A-buttorn Pressed
+          this.el.addEventListener("abuttondown", function(e) {
+            //Start pointing position to teleport
+            this.emit("teleportstart");
+          });
+          this.el.addEventListener("abuttonup", function(e) {
+            //Jump to pointed position
+            this.emit("teleportend");
+          });
 
-                //Raycaster intersected with something.
-                this.el.addEventListener('raycaster-intersection', function (e) {
-                    //Store first selected object as selectedObj 
-                    this.selectedObj = e.detail.els[0];
-                });
-                //Raycaster intersection is finished.
-                this.el.addEventListener('raycaster-intersection-cleared', function (e) {
-                    //Clear information of selectedObj
-                    this.selectedObj = null;
-                });
+          //X-buttorn Pressed
+          this.el.addEventListener("xbuttondown", function(e) {
+            //Start pointing position to teleport
+            this.emit("teleportstart");
+          });
 
-                //A-buttorn Pressed 
-                this.el.addEventListener('abuttondown', function (e) {
-                       //Start pointing position to teleport  
-                    this.emit('teleportstart');
-                });
-               this.el.addEventListener('abuttonup', function (e) {
-                    //Jump to pointed position
-                    this.emit('teleportend');
-                });
+          //X-buttorn Released
+          this.el.addEventListener("xbuttonup", function(e) {
+            //Jump to pointed position
+            this.emit("teleportend");
+          });
 
-                //X-buttorn Pressed 
-                this.el.addEventListener('xbuttondown', function (e) {
-                    //Start pointing position to teleport  
-                    this.emit('teleportstart');
-                });
-
-                //X-buttorn Released 
-                this.el.addEventListener('xbuttonup', function (e) {
-                    //Jump to pointed position
-                    this.emit('teleportend');
-                });
-
-                //console.log(this);
-            },
+          //console.log(this);
+        },
 
         //called evry frame.
-        tick: function () {
+        tick: function() {
+          if (!this.el.selectedObj) {
+            return;
+          }
+          if (!this.el.grip) {
+            return;
+          }
 
-            if (!this.el.selectedObj) { return; }
-            if (!this.el.grip) { return; }
-          
-            //Getting raycaster component which is attatched to ctlR or L
-            //this.el means entity of ctlR or L in this function.
-            var ray = this.el.getAttribute("raycaster").direction;
-            //setting tip of raycaster as 1.1m forward of controller.  
-            var p = new THREE.Vector3(ray.x, ray.y, ray.z);
-            p.normalize();
-            p.multiplyScalar(1.2);
-            //Convert local position into world coordinate.
-            this.el.object3D.localToWorld(p);
-            //Move selected object to follow the tip of raycaster.
-            this.el.selectedObj.object3D.position.set(p.x, p.y, p.z);
+          //Getting raycaster component which is attatched to ctlR or L
+          //this.el means entity of ctlR or L in this function.
+          var ray = this.el.getAttribute("raycaster").direction;
+          //setting tip of raycaster as 1.1m forward of controller.
+          var p = new THREE.Vector3(ray.x, ray.y, ray.z);
+          p.normalize();
+          p.multiplyScalar(1.2);
+          //Convert local position into world coordinate.
+          this.el.object3D.localToWorld(p);
+          //Move selected object to follow the tip of raycaster.
+          this.el.selectedObj.object3D.position.set(p.x, p.y, p.z);
         }
-    });
+      });
+    </script>
 
-
-</script>
+    <a-scene physics="debug: false; gravity: 0; restitution: 0.9; ">
       <a-assets>
+        <a-mixin
+          id="all-interactions"
+          hoverable
+          grabbable
+          stretchable
+          draggable
+          event-set__hoveron="_event: hover-start; material.opacity: 0.7; transparent: true"
+          event-set__hoveroff="_event: hover-end; material.opacity: 1; transparent: false"
+          dynamic-body
+        ></a-mixin>
+
+        <a-mixin
+          id="grab-move"
+          hoverable
+          grabbable
+          draggable
+          event-set__hoveron="_event: hover-start; material.opacity: 0.7; transparent: true"
+          event-set__hoveroff="_event: hover-end; material.opacity: 1; transparent: false"
+          dynamic-body="shape: box; sphereRadius: 0.1"
+        ></a-mixin>
+
+        <a-mixin
+          id="physics-hands"
+          physics-collider
+          phase-shift
+          collision-filter="collisionForces: false"
+          static-body="shape: sphere; sphereRadius: 0.02"
+          super-hands="colliderEvent: collisions;
+                              colliderEventProperty: els;
+                              colliderEndEvent: collisions;
+                              colliderEndEventProperty: clearedEls;"
+        ></a-mixin>
+
         <img
           crossorigin="anonymous"
           id="ground"
@@ -133,6 +184,7 @@
 
       <!-- Ground -->
       <a-plane
+        static-body
         material="color: #FFFFFFF; src: #ground; repeat :15 15;"
         rotation="-90 0 0"
         position="0 0.1 0"
@@ -163,68 +215,78 @@
         rotation="0 -23.83160653067146 0"
       ></a-gltf-model>
       <a-gltf-model
-              class="collidable"
+        mixin="all-interactions"
+        class="collidable"
         src="#knight"
         scale="0.03 0.03 0.03"
         position="-0.38701 1.08131 -2.44533"
       >
       </a-gltf-model>
       <a-gltf-model
-          class="collidable"
+        mixin="all-interactions"
         src="#queen"
         scale="0.03 0.03 0.03"
         position="0.07661 1.08131 -2.44533"
       >
       </a-gltf-model>
       <a-gltf-model
+        mixin="all-interactions"
         src="#rook"
         scale="0.03 0.03 0.03"
         position="-0.543 1.08131 -2.44959"
       >
       </a-gltf-model>
       <a-gltf-model
+        mixin="all-interactions"
         src="#pawn"
         scale="0.03 0.03 0.03"
         position="-0.54298 1.08131 -2.59185"
       >
       </a-gltf-model>
       <a-gltf-model
+        mixin="all-interactions"
         src="#pawn"
         scale="0.03 0.03 0.03"
         position="-0.4 1.08131 -2.59185"
       >
       </a-gltf-model>
       <a-gltf-model
+        mixin="all-interactions"
         src="#pawn"
         scale="0.03 0.03 0.03"
         position="-0.23215 1.08131 -2.57271"
       >
       </a-gltf-model>
       <a-gltf-model
+        mixin="all-interactions"
         src="#pawn"
         scale="0.03 0.03 0.03"
         position="-0.07026 1.08131 -2.57271"
       >
       </a-gltf-model>
       <a-gltf-model
+        mixin="all-interactions"
         src="#pawn"
         scale="0.03 0.03 0.03"
         position="0.0677 1.08131 -2.57271"
       >
       </a-gltf-model>
       <a-gltf-model
+        mixin="all-interactions"
         src="#pawn"
         scale="0.03 0.03 0.03"
         position="0.226 1.08131 -2.57271"
       >
       </a-gltf-model>
       <a-gltf-model
+        mixin="all-interactions"
         src="#pawn"
         scale="0.03 0.03 0.03"
         position="0.373 1.08131 -2.57271"
       >
       </a-gltf-model>
       <a-gltf-model
+        mixin="all-interactions"
         src="#pawn"
         scale="0.03 0.03 0.03"
         position="0.530 1.08131 -2.57271"
@@ -232,30 +294,35 @@
       </a-gltf-model>
 
       <a-gltf-model
+        mixin="all-interactions"
         src="#king"
         scale="0.03 0.03 0.03"
         position="-0.068 1.08131 -2.44533"
       >
       </a-gltf-model>
       <a-gltf-model
+        mixin="all-interactions"
         src="#bishop"
         scale="0.03 0.03 0.03"
         position="0.23515 1.08131 -2.44533"
       >
       </a-gltf-model>
       <a-gltf-model
+        mixin="all-interactions"
         src="#knight"
         scale="0.03 0.03 0.03"
         position="0.38701 1.08131 -2.44533"
       >
       </a-gltf-model>
       <a-gltf-model
+        mixin="all-interactions"
         src="#rook"
         scale="0.03 0.03 0.03"
         position="0.543 1.08131 -2.44959"
       >
       </a-gltf-model>
       <a-gltf-model
+        mixin="all-interactions"
         src="#bishop"
         scale="0.03 0.03 0.03"
         position="-0.23515 1.08131 -2.44533"
@@ -263,26 +330,67 @@
       </a-gltf-model>
 
       <!-- Camera in VR is 0 0 0 but in Desktop mode its 0 1.6 0 -->
-<!--       <a-entity position="0 0 0">
+      <!--       <a-entity position="0 0 0">
         <a-camera user-height="1.6" active="true"> </a-camera>
       </a-entity> -->
 
-    <a-entity id="cameraRig">
-            <a-entity id="head" camera wasd-controls look-controls position="0 1.6 0">
-            </a-entity>
-            <a-entity id="ctlL"
-                teleport-controls="cameraRig: #cameraRig; teleportOrigin: #head; startEvents: teleportstart; endEvents: teleportend"
-                raycaster="objects: .collidable; far:1.2; " oculus-touch-controls="hand: left" input-listen>
-                <a-text value="Press and let go \nX: to Move" position="0 0.08 0"
-                    rotation="-90 0 0" scale="0.1 0.1 0.1" align="center" color="#FFFFFF"></a-text>
-              <a-sphere radius="0.01" position="0 0 -1.2" color="#FFFFFF"></a-sphere>
-            </a-entity>
-            <a-entity id="ctlR" raycaster="objects: .collidable; far:1.2; " oculus-touch-controls="hand: right" input-listen>
-                <a-text value="Use Grip to interact"
-                    position="0 0.08 0" rotation="-90 0 0" scale="0.1 0.1 0.1" align="center" color="#FFFFFF"></a-text>
-              <a-sphere radius="0.01" position="0 0 -1.2" color="#FFFFFF"></a-sphere>
-            </a-entity>
+      <a-entity id="cameraRig">
+
+       
+        <a-entity
+          id="head"
+          camera
+          wasd-controls
+          look-controls
+          position="0 1.6 0"
+        >
         </a-entity>
+        <a-entity
+          id="ctlL"
+          teleport-controls="cameraRig: #cameraRig; teleportOrigin: #head; startEvents: teleportstart; endEvents: teleportend"
+          raycaster="objects: .collidable; far:1.2; "
+          hand-controls="hand: left"
+          mixin="physics-hands"
+          input-listen
+          phase-shift
+        >
+          <a-text
+            value="Press and let go \nX: to Move"
+            position="0 0.08 0"
+            rotation="-90 0 0"
+            scale="0.1 0.1 0.1"
+            align="center"
+            color="#FFFFFF"
+          ></a-text>
+          <a-sphere
+            radius="0.01"
+            position="0 0 -1.2"
+            color="#FFFFFF"
+          ></a-sphere>
+        </a-entity>
+        <a-entity
+          id="ctlR"
+          raycaster="objects: .collidable; far:1.2; "
+          hand-controls="hand: right"
+          mixin="physics-hands"
+          input-listen
+          phase-shift
+        >
+          <a-text
+            value="Use Grip to interact"
+            position="0 0.08 0"
+            rotation="-90 0 0"
+            scale="0.1 0.1 0.1"
+            align="center"
+            color="#FFFFFF"
+          ></a-text>
+          <a-sphere
+            radius="0.01"
+            position="0 0 -1.2"
+            color="#FFFFFF"
+          ></a-sphere>
+        </a-entity>
+      </a-entity>
     </a-scene>
   </body>
 </html>
