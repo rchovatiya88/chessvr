@@ -9,6 +9,7 @@ Live [Demo](https://chessvr.glitch.me/) - https://chessvr.glitch.me/
 - Web Browser (Chrome)
 - Set up Glitch Account - www.glitch.com
 
+
 ### How it Works
 
 - Add 3D models in GLTF or glb format in the asset folder. Also, you can add any Images, videos, materials in asset folder for reference (Check File Size limit)
@@ -20,7 +21,9 @@ Let's define our goal for the project and scene. In order visualize our concept,
 
 - Environment
 - 3D Models of Chess
+
 - Controllers
+
 
 ### Creating a Scene
 
@@ -48,6 +51,7 @@ For example we can follow the docs from a-frame [Getting Started](https://aframe
 ```
 
 Watch [Tutorial](https://www.youtube.com/watch?v=ktjMCanKNLk&list=PL8MkBHej75fJD-HveDzm4xKrciC5VfYuV)
+
 
 - For our project we need a real ground, We decided use a [Ground texture](https://www.textures.com/browse/streets/97701)
   ![Ground textured](https://cdn.glitch.com/97890fbd-889b-466f-a357-23627a83de50%2FTexturesCom_FloorStreets0064_2_M.jpg?v=1612300231287)
@@ -113,7 +117,9 @@ _A Tip to easily change parameters_
 
 ![Step 2](https://cdn.glitch.com/97890fbd-889b-466f-a357-23627a83de50%2FScreen%20Shot%202021-02-02%20at%204.26.32%20PM.png?v=1612301609061)
 
+
 ### Step 3
+
 
 - Let's add 3d Objects, we can use models our custom assets or use [Sketchfab](https://sketchfab.com/feed)
 
@@ -138,6 +144,7 @@ Similar to the code from [aframe docs](https://aframe.io/docs/1.1.0/primitives/a
 - By using the `Aframe inspector` we position each chess pieces into proper spaces
 
 ![Step 3](https://cdn.glitch.com/97890fbd-889b-466f-a357-23627a83de50%2FScreen%20Shot%202021-02-02%20at%205.44.21%20PM.png?v=1612305923293)
+
 
 ### Step 4
 
@@ -372,3 +379,4 @@ Per Kyle instruction
 
 - Adding `aframe-physics` to interact with chess pieces
 - Multiplayer
+
